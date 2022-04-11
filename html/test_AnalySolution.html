@@ -1,0 +1,234 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Analytical solution</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-06"><meta name="DC.source" content="test_AnalySolution.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Analytical solution</h1><!--introduction--><p>Contributed by OuYang,Xiong</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">define parameters</a></li><li><a href="#2">calculate analytical solution value</a></li><li><a href="#3">convert vertex matrix to face matrix</a></li><li><a href="#4">draw the figures</a></li></ul></div><h2 id="1">define parameters</h2><p>material parameters young modulus</p><pre class="codeinput">E   = 600;
+<span class="comment">% poisson's ratio</span>
+nu  = 1.33;
+<span class="comment">%&#37510;&#8364;density</span>
+rho = 1;
+<span class="comment">% load mesh model</span>
+<span class="comment">% x  : coordinates (3* total nnde)</span>
+<span class="comment">% ix : node number matrix (nnde in cell* cell number)</span>
+load(<span class="string">'fix comsol.mat'</span>)
+<span class="comment">% Geometric parameters</span>
+<span class="comment">% length in x,y,z</span>
+Lz  = max(x(:,3)) - min(x(:,3));
+Ly  = max(x(:,2)) - min(x(:,2));
+Lx  = max(x(:,1)) - min(x(:,1));
+<span class="comment">% physical force</span>
+<span class="comment">%gravity</span>
+g   = 9.8;
+</pre><h2 id="2">calculate analytical solution value</h2><p>stress (x y z)</p><pre class="codeinput">sig_z  = rho* g* x(:,3);
+sig_x  = zeros(size(sig_z));
+sig_y  = zeros(size(sig_z));
+<span class="comment">% strain (x y z)</span>
+eps_xx = -(nu* rho* g* x(:,3))/E;
+eps_yy = -(nu* rho* g* x(:,3))/E;
+eps_zz = (rho* g* x(:,3))/E;
+<span class="comment">% displacement (x y z)</span>
+u_x = -(nu* rho* g).* x(:,1).* x(:,3) /E;
+u_y = -(nu* rho* g).* x(:,2).* x(:,3) /E;
+u_z = (rho* g/(2*E)).* (x(:,3).^2- Lz^2+ nu*(x(:,1).^2+x(:,2).^2));
+<span class="comment">%current configuration's coordinates</span>
+xx = x+ [u_x,u_y,u_z];
+</pre><h2 id="3">convert vertex matrix to face matrix</h2><pre class="codeinput"><span class="keyword">for</span> i = 1 : length(ix)
+[fx(((4*i-3):(4*i)),:),~] = VerToFace(x(ix(i,:),:),ix(i,:));
+<span class="keyword">end</span>
+</pre><h2 id="4">draw the figures</h2><pre class="codeinput"><span class="comment">% sigma figure</span>
+sty  = {<span class="string">'Stress in x'</span>, <span class="string">'Stress in y'</span>, <span class="string">'Stress in z'</span>};
+sig=[sig_x,sig_y,sig_z];
+<span class="keyword">for</span> i =1:3
+figure
+patch(<span class="string">'vertices'</span>, x, <span class="string">'faces'</span>, fx, <span class="keyword">...</span>
+<span class="string">'facecolor'</span>, <span class="string">'none'</span>, <span class="string">'edgecolor'</span>, <span class="string">'r'</span>);
+hold <span class="string">on</span>
+axis <span class="string">equal</span>
+mypatch(x, ix, <span class="string">'interp'</span>, <span class="string">'none'</span>, sig(:,i), 0.5, 1, sty{i},<span class="string">'x axis'</span>,<span class="string">'y axis'</span>,<span class="string">'z axis'</span>);
+view(50,25)
+colorbar
+<span class="keyword">end</span>
+
+<span class="comment">% epsilon figure</span>
+eps = [eps_xx,eps_yy,eps_zz];
+cel = {<span class="string">'Strain in x'</span>, <span class="string">'Strain in y'</span>, <span class="string">'Strain in z'</span>};
+<span class="keyword">for</span> i =1:3
+figure
+patch(<span class="string">'vertices'</span>, x, <span class="string">'faces'</span>, fx, <span class="keyword">...</span>
+<span class="string">'facecolor'</span>, <span class="string">'none'</span>, <span class="string">'edgecolor'</span>, <span class="string">'r'</span>);
+hold <span class="string">on</span>
+axis <span class="string">equal</span>
+mypatch(x, ix, <span class="string">'interp'</span>, <span class="string">'none'</span>, eps(:,i), 0.5 , 1 , cel{i} ,<span class="string">'x axis'</span>,<span class="string">'y axis'</span>,<span class="string">'z axis'</span>);
+view(50,25)
+colorbar
+<span class="keyword">end</span>
+
+<span class="comment">% replacement figure</span>
+ctl ={<span class="string">'Displacement in x'</span>, <span class="string">'Displacement in y'</span>, <span class="string">'Displacement in z'</span>};
+u = [u_x,u_y,u_z];
+<span class="keyword">for</span> i =1:3
+figure
+patch(<span class="string">'vertices'</span>, x, <span class="string">'faces'</span>, fx, <span class="keyword">...</span>
+<span class="string">'facecolor'</span>, <span class="string">'none'</span>, <span class="string">'edgecolor'</span>, <span class="string">'r'</span>);
+hold <span class="string">on</span>
+axis <span class="string">equal</span>
+mypatch(xx, ix, <span class="string">'interp'</span>, <span class="string">'none'</span>, u(:,i), 0.5, 1,ctl{i},<span class="string">'x axis'</span>,<span class="string">'y axis'</span>,<span class="string">'z axis'</span>);
+view(50,25)
+colorbar
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="test_AnalySolution_01.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_02.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_03.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_04.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_05.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_06.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_07.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_08.png" alt=""> <img vspace="5" hspace="5" src="test_AnalySolution_09.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Analytical solution
+% Contributed by OuYang,Xiong
+
+%% define parameters
+% material parameters
+% young modulus
+E   = 600;
+% poisson's ratio
+nu  = 1.33;
+%銆€density
+rho = 1;
+% load mesh model 
+% x  : coordinates (3* total nnde)
+% ix : node number matrix (nnde in cell* cell number) 
+load('fix comsol.mat')
+% Geometric parameters
+% length in x,y,z
+Lz  = max(x(:,3)) - min(x(:,3));
+Ly  = max(x(:,2)) - min(x(:,2));
+Lx  = max(x(:,1)) - min(x(:,1));
+% physical force
+%gravity
+g   = 9.8;
+
+%% calculate analytical solution value
+% stress (x y z)
+sig_z  = rho* g* x(:,3);
+sig_x  = zeros(size(sig_z));
+sig_y  = zeros(size(sig_z));
+% strain (x y z)
+eps_xx = -(nu* rho* g* x(:,3))/E;
+eps_yy = -(nu* rho* g* x(:,3))/E;
+eps_zz = (rho* g* x(:,3))/E;
+% displacement (x y z) 
+u_x = -(nu* rho* g).* x(:,1).* x(:,3) /E;
+u_y = -(nu* rho* g).* x(:,2).* x(:,3) /E;
+u_z = (rho* g/(2*E)).* (x(:,3).^2- Lz^2+ nu*(x(:,1).^2+x(:,2).^2));
+%current configuration's coordinates
+xx = x+ [u_x,u_y,u_z];
+
+%% convert vertex matrix to face matrix
+for i = 1 : length(ix)
+[fx(((4*i-3):(4*i)),:),~] = VerToFace(x(ix(i,:),:),ix(i,:));
+end
+
+%% draw the figures
+
+% sigma figure 
+sty  = {'Stress in x', 'Stress in y', 'Stress in z'}; 
+sig=[sig_x,sig_y,sig_z];
+for i =1:3
+figure
+patch('vertices', x, 'faces', fx, ...
+'facecolor', 'none', 'edgecolor', 'r');
+hold on 
+axis equal
+mypatch(x, ix, 'interp', 'none', sig(:,i), 0.5, 1, sty{i},'x axis','y axis','z axis'); 
+view(50,25)
+colorbar
+end
+
+% epsilon figure 
+eps = [eps_xx,eps_yy,eps_zz];
+cel = {'Strain in x', 'Strain in y', 'Strain in z'};
+for i =1:3
+figure
+patch('vertices', x, 'faces', fx, ...
+'facecolor', 'none', 'edgecolor', 'r');
+hold on 
+axis equal
+mypatch(x, ix, 'interp', 'none', eps(:,i), 0.5 , 1 , cel{i} ,'x axis','y axis','z axis'); 
+view(50,25)
+colorbar
+end
+
+% replacement figure
+ctl ={'Displacement in x', 'Displacement in y', 'Displacement in z'};
+u = [u_x,u_y,u_z];
+for i =1:3
+figure    
+patch('vertices', x, 'faces', fx, ...
+'facecolor', 'none', 'edgecolor', 'r');
+hold on 
+axis equal
+mypatch(xx, ix, 'interp', 'none', u(:,i), 0.5, 1,ctl{i},'x axis','y axis','z axis'); 
+view(50,25)
+colorbar
+end 
+##### SOURCE END #####
+--></body></html>

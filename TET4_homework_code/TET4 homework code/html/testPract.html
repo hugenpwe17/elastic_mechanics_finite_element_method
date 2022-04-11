@@ -1,0 +1,159 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>testPract</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-12-23"><meta name="DC.source" content="testPract.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput">clear;
+close <span class="string">all</span>;
+clc;
+
+<span class="comment">%&#36755;&#20837;&#39640;&#26031;&#28857;&#32500;&#25968;</span>
+nint = 1:3;
+
+
+    <span class="comment">%&#32472;&#21046;&#38543;&#26426;&#22235;&#38754;&#20307;</span>
+   pint = rand(3,4);
+<span class="comment">%         pint = [0.2511    0.3517    0.5497    0.7572;</span>
+<span class="comment">%           0.6160    0.8308    0.9172    0.7537;</span>
+<span class="comment">%           0.4733    0.5853    0.2858    0.3804;];</span>
+    ix   =[1 2 3 4 1 3 4 2];<span class="comment">%&#22235;&#38754;&#20307;&#36830;&#32447;&#39034;&#24207;</span>
+ <span class="keyword">for</span> k=1:length(nint)
+    figure;
+    patch(<span class="string">'vertices'</span>, pint', <span class="string">'faces'</span>, ix, <span class="string">'facecolor'</span>, <span class="string">'none'</span>, <span class="string">'edgecolor'</span>, <span class="string">'b'</span>)
+
+
+    [D,nnde] = size(pint);
+    <span class="comment">%&#35745;&#31639;&#24418;&#20989;&#25968;&#30697;&#38453;</span>
+    [g, w] = TET4_GP(k);
+    ngp    = size(g,1);
+    Xi     = g;
+    Xi     = [Xi,(1-sum(Xi,2))];
+    <span class="comment">%&#21021;&#22987;&#21270;&#39640;&#26031;&#28857;&#22352;&#26631;&#30697;&#38453;</span>
+    gint   = zeros(ngp,D);
+
+    <span class="comment">%&#35745;&#31639;&#39640;&#26031;&#28857;&#22352;&#26631;</span>
+    <span class="keyword">for</span> i = 1:ngp
+        <span class="keyword">for</span> j = 1:nnde
+            gint(i,:) =gint(i,:)+(Xi(i,j)*pint(:,j))';
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">%&#32472;&#21046;&#39640;&#26031;&#28857;</span>
+    hold <span class="string">on</span>
+    scatter3(gint(:,1),gint(:,2),gint(:,3),50)
+
+    view(72,35);
+ <span class="keyword">end</span>
+
+ <span class="comment">% &#36129;&#29486;&#65306;&#27431;&#38451;&#23398;&#40857; &#29066;&#24535;&#28009;</span>
+</pre><img vspace="5" hspace="5" src="testPract_01.png" alt=""> <img vspace="5" hspace="5" src="testPract_02.png" alt=""> <img vspace="5" hspace="5" src="testPract_03.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clear;
+close all;
+clc;
+
+%输入高斯点维数
+nint = 1:3;
+
+
+    %绘制随机四面体
+   pint = rand(3,4);
+%         pint = [0.2511    0.3517    0.5497    0.7572;
+%           0.6160    0.8308    0.9172    0.7537;
+%           0.4733    0.5853    0.2858    0.3804;];
+    ix   =[1 2 3 4 1 3 4 2];%四面体连线顺序
+ for k=1:length(nint)
+    figure;
+    patch('vertices', pint', 'faces', ix, 'facecolor', 'none', 'edgecolor', 'b')
+    
+    
+    [D,nnde] = size(pint);
+    %计算形函数矩阵
+    [g, w] = TET4_GP(k);
+    ngp    = size(g,1);
+    Xi     = g;
+    Xi     = [Xi,(1-sum(Xi,2))];
+    %初始化高斯点坐标矩阵
+    gint   = zeros(ngp,D);
+    
+    %计算高斯点坐标
+    for i = 1:ngp
+        for j = 1:nnde
+            gint(i,:) =gint(i,:)+(Xi(i,j)*pint(:,j))';
+        end
+    end
+    
+    %绘制高斯点
+    hold on
+    scatter3(gint(:,1),gint(:,2),gint(:,3),50)
+    
+    view(72,35);
+ end
+
+ % 贡献：欧阳学龙 熊志浩
+##### SOURCE END #####
+--></body></html>

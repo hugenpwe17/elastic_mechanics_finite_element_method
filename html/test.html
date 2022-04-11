@@ -1,0 +1,379 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>test</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-12-30"><meta name="DC.source" content="test.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Draw tetrahedron and its gauss points</a></li><li><a href="#2">show shape function in isoparametric space</a></li><li><a href="#3">Draw the tetrahedron and Gauss point in real space</a></li><li><a href="#4">jacobi test</a></li><li><a href="#5">test</a></li></ul></div><h2 id="1">Draw tetrahedron and its gauss points</h2><p>Contributed by Xiong</p><pre class="codeinput">close <span class="string">all</span>;
+clear;
+clc;
+
+<span class="comment">% Tetrahedron vertex coordinates in isoparametric space</span>
+x = [0 0 0;
+     1 0 0;
+     0 1 0;
+     0 0 1];
+
+<span class="comment">% Tetrahedral connection order</span>
+ix=[1 2 3 4 1 3 4 2];
+
+<span class="comment">% Order</span>
+nint=1:3;
+
+<span class="comment">% define the gauss points cors and weight cell g and w</span>
+g = cell(1,3);
+w = cell(1,3);
+
+<span class="comment">% Calculate Gauss points of different orders</span>
+<span class="keyword">for</span> k=1:length(nint)
+    [g{k}, w{k}] = Tet4Gp(k);
+<span class="keyword">end</span>
+
+<span class="comment">% Draw tetrahedron in isoparametric space</span>
+<span class="keyword">for</span> l=1:length(nint)
+    subplot(1,3,l)
+    patch(<span class="string">'vertices'</span>, x, <span class="string">'faces'</span>, ix, <span class="string">'facecolor'</span>, <span class="string">'none'</span>, <span class="string">'edgecolor'</span>, <span class="string">'b'</span>);
+    str = [<span class="string">'Gauss point of order '</span> num2str(l)];
+    MyPatch(x, ix, <span class="string">'none'</span>, <span class="string">'b'</span>, str, <span class="string">'x'</span>, <span class="string">'y'</span>, <span class="string">'z'</span>);
+    <span class="comment">% Draw gauss point of corresponding order (nint)</span>
+    hold <span class="string">on</span>;
+    plot3(g{l}(:,1), g{l}(:,2), g{l}(:,3), <span class="string">'marker'</span>, <span class="string">'x'</span>, <span class="string">'color'</span>, <span class="string">'r'</span>, <span class="string">'linestyle'</span>, <span class="string">'none'</span>, <span class="keyword">...</span>
+        <span class="string">'markersize'</span>, 16);
+    <span class="comment">% Fixed viewing angle</span>
+    view(43, 22);
+<span class="keyword">end</span>
+set(figure(1),<span class="string">'Position'</span>,[0,220,1800,500]);
+</pre><img vspace="5" hspace="5" src="test_01.png" alt=""> <h2 id="2">show shape function in isoparametric space</h2><p>Contributed by OuYang</p><pre class="codeinput">close <span class="string">all</span>;
+clear;
+clc;
+
+<span class="comment">% creat grid points</span>
+[Xi_x,Xi_y,Xi_z]<span class="keyword">...</span>
+        =   meshgrid(0:0.1:1,0:0.1:1,0:0.1:1);
+Xi_x    =   Xi_x(:);
+Xi_y    =   Xi_y(:);
+Xi_z    =   Xi_z(:);
+Xi      =   [Xi_x(:),Xi_y(:),Xi_z(:)];
+
+<span class="comment">% select the points inside and on the tetrahedron</span>
+Xi      =   Xi((Xi_x + Xi_y + Xi_z) &lt;= 1,:);
+
+<span class="comment">% find the shape function of each node</span>
+NumXi   =   size(Xi,1);
+N       =   zeros(NumXi,4);
+<span class="keyword">for</span> i   =   1:NumXi
+    N(i,:)<span class="keyword">...</span>
+        =   ShapeFun(Xi(i,:));
+<span class="keyword">end</span>
+
+<span class="comment">% Draw the image of the shape function in the parameter function space</span>
+<span class="keyword">for</span> i=1:4
+subplot(2,2,i)
+scatter3(Xi(:,1),Xi(:,2),Xi(:,3),20,N(:, i),<span class="string">'filled'</span>)
+view(31,38);
+colorbar()
+<span class="keyword">end</span>
+set(figure(1),<span class="string">'Position'</span>,[300,100,1200,800]);
+</pre><img vspace="5" hspace="5" src="test_02.png" alt=""> <h2 id="3">Draw the tetrahedron and Gauss point in real space</h2><p>Contributed by OuYang, Xiong</p><pre class="codeinput">clear;
+close <span class="string">all</span>;
+clc;
+
+<span class="comment">% Order</span>
+nint = 1:3;
+
+<span class="comment">% Draw a specific tetrahedron</span>
+PraCor = [0.2511,0.3517,0.5497,0.7572;
+        0.6160,0.8308,0.9172,0.7537;
+        0.4733,0.5853,0.2858,0.3804];
+
+<span class="comment">% Find the dimensionality and node's number in input data</span>
+[D,nnde] = size(PraCor);
+
+<span class="comment">% Tetrahedral connection order</span>
+ix   =[1 2 3 4 1 3 4 2];
+
+
+ <span class="keyword">for</span> k=1:length(nint)
+    <span class="comment">% Draw the tetrahedron in isoparametric space</span>
+    figure;
+    patch(<span class="string">'vertices'</span>, PraCor', <span class="string">'faces'</span>, ix, <span class="string">'facecolor'</span>, <span class="string">'none'</span>, <span class="string">'edgecolor'</span>, <span class="string">'b'</span>)
+    hold <span class="string">on</span>
+
+    <span class="comment">% Calculate the coordinates (g) and number (ngp) of gauss points</span>
+    [g, w] = Tet4Gp(k);
+    ngp    = size(g,1);
+
+    <span class="comment">% Define gauss point matrix in real space</span>
+    GusCor = zeros(ngp,D);
+
+    <span class="keyword">for</span> i = 1:ngp
+        <span class="comment">% Calculate shape function value in the gauss point</span>
+        [N,~] = ShapeFun(g(i,:));
+        <span class="comment">% Interpolate nodes to find Gauss points in real space</span>
+        GusCor(i,:) = (sum(N.*PraCor,2))';
+    <span class="keyword">end</span>
+
+   <span class="comment">% Draw the position of the Gauss point in the tetrahedron in real space</span>
+    scatter3(GusCor(:,1),GusCor(:,2),GusCor(:,3),50)
+    view(72,35);
+
+ <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="test_03.png" alt=""> <img vspace="5" hspace="5" src="test_04.png" alt=""> <img vspace="5" hspace="5" src="test_05.png" alt=""> <h2 id="4">jacobi test</h2><pre class="codeinput">clc
+
+dN = [1 0 0;
+      0 1 0;
+      0 0 1;
+     -1 -1 -1];
+
+<span class="comment">% real TET4</span>
+x  = rand(4,3);
+<span class="comment">% x = [0 0 0;</span>
+<span class="comment">%      1 0 0;</span>
+<span class="comment">%      0 1 0;</span>
+<span class="comment">%      0 0 1];</span>
+
+<span class="comment">% calculate the volume of real TET4</span>
+V  = x-x(1,:);
+V(1,:) = [];
+Vol= abs(dot(V(1,:),cross(V(2,:),V(3,:))))/6;
+str1 = [<span class="string">'Vol = '</span> num2str(Vol)];
+disp(str1)
+
+<span class="comment">% from other</span>
+[J, detJ] = ShapeFunJacob(dN, x);
+str2 = [<span class="string">'detJ = '</span> num2str(detJ/6)];
+disp(str2)
+
+<span class="keyword">if</span> (abs(Vol)-abs(detJ)) &lt;10^-9
+    disp(<span class="string">'right'</span>);
+<span class="keyword">else</span>
+    disp(<span class="string">'wrong'</span>);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Vol = 0.031807
+detJ = 0.031807
+right
+</pre><h2 id="5">test</h2><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Draw tetrahedron and its gauss points
+% Contributed by Xiong
+close all;
+clear;
+clc;
+
+% Tetrahedron vertex coordinates in isoparametric space
+x = [0 0 0; 
+     1 0 0; 
+     0 1 0;
+     0 0 1];
+
+% Tetrahedral connection order
+ix=[1 2 3 4 1 3 4 2];
+
+% Order
+nint=1:3;
+
+% define the gauss points cors and weight cell g and w
+g = cell(1,3);
+w = cell(1,3);
+
+% Calculate Gauss points of different orders
+for k=1:length(nint)
+    [g{k}, w{k}] = Tet4Gp(k);
+end
+
+% Draw tetrahedron in isoparametric space
+for l=1:length(nint)
+    subplot(1,3,l)
+    patch('vertices', x, 'faces', ix, 'facecolor', 'none', 'edgecolor', 'b');
+    str = ['Gauss point of order ' num2str(l)];
+    MyPatch(x, ix, 'none', 'b', str, 'x', 'y', 'z');
+    % Draw gauss point of corresponding order (nint)
+    hold on;
+    plot3(g{l}(:,1), g{l}(:,2), g{l}(:,3), 'marker', 'x', 'color', 'r', 'linestyle', 'none', ...
+        'markersize', 16); 
+    % Fixed viewing angle
+    view(43, 22);
+end
+set(figure(1),'Position',[0,220,1800,500]);
+
+%% show shape function in isoparametric space
+% Contributed by OuYang
+close all;
+clear;
+clc;
+
+% creat grid points
+[Xi_x,Xi_y,Xi_z]...
+        =   meshgrid(0:0.1:1,0:0.1:1,0:0.1:1);
+Xi_x    =   Xi_x(:);
+Xi_y    =   Xi_y(:);
+Xi_z    =   Xi_z(:);
+Xi      =   [Xi_x(:),Xi_y(:),Xi_z(:)];
+
+% select the points inside and on the tetrahedron
+Xi      =   Xi((Xi_x + Xi_y + Xi_z) <= 1,:);
+
+% find the shape function of each node 
+NumXi   =   size(Xi,1);
+N       =   zeros(NumXi,4);
+for i   =   1:NumXi
+    N(i,:)...
+        =   ShapeFun(Xi(i,:));
+end
+
+% Draw the image of the shape function in the parameter function space
+for i=1:4
+subplot(2,2,i)
+scatter3(Xi(:,1),Xi(:,2),Xi(:,3),20,N(:, i),'filled')
+view(31,38);
+colorbar()
+end
+set(figure(1),'Position',[300,100,1200,800]);
+
+
+%% Draw the tetrahedron and Gauss point in real space
+% Contributed by OuYang, Xiong
+clear;
+close all;
+clc;
+
+% Order
+nint = 1:3;
+
+% Draw a specific tetrahedron
+PraCor = [0.2511,0.3517,0.5497,0.7572;
+        0.6160,0.8308,0.9172,0.7537;
+        0.4733,0.5853,0.2858,0.3804];
+
+% Find the dimensionality and node's number in input data
+[D,nnde] = size(PraCor);
+
+% Tetrahedral connection order
+ix   =[1 2 3 4 1 3 4 2];
+
+
+ for k=1:length(nint)
+    % Draw the tetrahedron in isoparametric space
+    figure;
+    patch('vertices', PraCor', 'faces', ix, 'facecolor', 'none', 'edgecolor', 'b')
+    hold on
+    
+    % Calculate the coordinates (g) and number (ngp) of gauss points
+    [g, w] = Tet4Gp(k);
+    ngp    = size(g,1);
+    
+    % Define gauss point matrix in real space
+    GusCor = zeros(ngp,D);
+    
+    for i = 1:ngp
+        % Calculate shape function value in the gauss point
+        [N,~] = ShapeFun(g(i,:));
+        % Interpolate nodes to find Gauss points in real space
+        GusCor(i,:) = (sum(N.*PraCor,2))';
+    end
+    
+   % Draw the position of the Gauss point in the tetrahedron in real space
+    scatter3(GusCor(:,1),GusCor(:,2),GusCor(:,3),50)
+    view(72,35);
+    
+ end
+
+%% jacobi test 
+clc
+
+dN = [1 0 0;
+      0 1 0;
+      0 0 1;
+     -1 -1 -1];
+ 
+% real TET4
+x  = rand(4,3);
+% x = [0 0 0; 
+%      1 0 0; 
+%      0 1 0;
+%      0 0 1];
+
+% calculate the volume of real TET4
+V  = x-x(1,:);
+V(1,:) = [];
+Vol= abs(dot(V(1,:),cross(V(2,:),V(3,:))))/6;
+str1 = ['Vol = ' num2str(Vol)];
+disp(str1)
+
+% from other 
+[J, detJ] = ShapeFunJacob(dN, x);
+str2 = ['detJ = ' num2str(detJ/6)];
+disp(str2)
+
+if (abs(Vol)-abs(detJ)) <10^-9
+    disp('right');
+else
+    disp('wrong');
+end
+
+%% test
+
+##### SOURCE END #####
+--></body></html>

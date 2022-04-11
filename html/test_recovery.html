@@ -1,0 +1,312 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>test_recovery</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-11"><meta name="DC.source" content="test_recovery.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">mesh grid</a></li><li><a href="#3">material and model properties</a></li><li><a href="#4">shape function structures</a></li><li><a href="#5">integrate K, M</a></li><li><a href="#6">integrate Mr, Reps, Rsig</a></li><li><a href="#7">Boundary conditions</a></li><li><a href="#8">solve for displacement</a></li><li><a href="#9">recover stress and strain</a></li><li><a href="#10">deformed configuration;</a></li></ul></div><pre class="codeinput">close <span class="string">all</span>;
+clear ;
+clc;
+</pre><h2 id="2">mesh grid</h2><p>load('comsol 5w fix.mat')</p><pre class="codeinput">Lx = 1;
+Ly = 1;
+Lz = 3.5;
+
+Nx = 16;
+Ny = 16;
+Nz = 44;
+
+mesher = MyRegular_Mesher;
+mesher.create(5, [Lx, Ly, Lz], [Nx, Ny, Nz], [-Lx/2 -Ly/2 0]);
+x   = mesher.x;
+nx  = mesher.nx;
+ix  = mesher.ix;
+nix = mesher.nix;
+nnde = 4;
+
+<span class="comment">% figure;</span>
+<span class="comment">% plot_mesh(3, x, ix, nnde * ones(nix, 1), 'none', 'k', 1);</span>
+<span class="comment">% axis equal</span>
+<span class="comment">% xlabel('x');</span>
+<span class="comment">% ylabel('y');</span>
+<span class="comment">% zlabel('z');</span>
+<span class="comment">% view(19, 23);</span>
+
+nx = size(x, 1);
+nix = size(ix, 1);
+</pre><h2 id="3">material and model properties</h2><pre class="codeinput">nnde  = 4;
+D     = 3;
+nintx = 2;    <span class="comment">% int. order for K, M</span>
+nints = 3;    <span class="comment">% int. order for recovery matarices (Mr, Reps, Rsig)</span>
+E     = 6000000;
+nu    = 0.33;
+<span class="comment">%&#12288;density</span>
+rho = 10;
+<span class="comment">% Geometric parameters</span>
+<span class="comment">% length in x,y,z</span>
+Lz  = max(x(:,3)) - min(x(:,3));
+Ly  = max(x(:,2)) - min(x(:,2));
+Lx  = max(x(:,1)) - min(x(:,1));
+<span class="comment">% physical force</span>
+<span class="comment">% gravity</span>
+g   = 9.8;
+</pre><h2 id="4">shape function structures</h2><pre class="codeinput">SFx = GenerateShapeFunction(D,nnde,nintx);
+SFs1 = GenerateShapeFunction(D,nnde,nints);
+SFs2 = GenerateShapeFunction(D,nnde,1);
+<span class="comment">% elastic tensor</span>
+CC = ElastTensor(E, nu);
+Dc = size(CC, 1);
+</pre><h2 id="5">integrate K, M</h2><pre class="codeinput"> tic;
+[K, M] = IntKM(x, ix, SFx, CC);
+ disp([<span class="string">'integration of K, M finished for :'</span>, num2str(toc), <span class="string">'sec'</span>]);
+</pre><pre class="codeoutput">integration of K, M finished for :12.9499sec
+</pre><h2 id="6">integrate Mr, Reps, Rsig</h2><pre class="codeinput"> tic;
+[Mr, Reps, Rsig] = intRecoverMat(x, ix, SFs1, SFs2, CC);
+disp([<span class="string">'integration of Mr, Reps, Rsig finished for :'</span>, num2str(toc), <span class="string">'sec'</span>]);
+</pre><pre class="codeoutput">integration of Mr, Reps, Rsig finished for :16.0168sec
+</pre><h2 id="7">Boundary conditions</h2><pre class="codeinput">topID   = find(abs(x(:, 3) - Lz) &lt; 1e-5);
+
+<span class="comment">% constrain</span>
+pu2    = [topID * D - 2, topID * D - 1,topID * D]';
+pu2    = pu2(:);
+u      = zeros(nx * D, 1);
+u(pu2)       = 0;
+
+<span class="comment">% external forces</span>
+puf  = topID * D;
+fext = zeros(nx, D);
+fext(:,3) = -rho* g* x(:,3);
+fext = fext';
+fext = fext(:);
+</pre><h2 id="8">solve for displacement</h2><pre class="codeinput">[u, fext] = solveLin(K, u, fext, pu2);
+</pre><h2 id="9">recover stress and strain</h2><pre class="codeinput">sigVec = Mr \ (Rsig * u);
+sig    = reshape(sigVec, Dc, nx)';
+epsVec = Mr \ (Reps * u);
+eps    = reshape(epsVec, Dc, nx)';
+</pre><h2 id="10">deformed configuration;</h2><pre class="codeinput">u0 = reshape(u, D, nx)';
+x1 = x + u0;
+
+<span class="comment">% figure;</span>
+<span class="comment">% % h1=patch('vertices', x, 'faces', ix, ...</span>
+<span class="comment">% % 'facecolor', 'none', 'edgecolor', 'r');</span>
+<span class="comment">% % set(h1, 'linewidth', 0.5);</span>
+<span class="comment">% % hold on</span>
+<span class="comment">% axis equal</span>
+<span class="comment">% mypatch(x1, ix, 'interp', 'none', u0(:,3), 0.8, 1, 't','x','y','z');</span>
+<span class="comment">% colorbar;</span>
+<span class="comment">% axis equal</span>
+<span class="comment">% title('u_z');</span>
+
+cel={<span class="string">'xx'</span>,<span class="string">'yy'</span>,<span class="string">'zz'</span>,<span class="string">'xy'</span>,<span class="string">'xz'</span>,<span class="string">'yz'</span>};
+
+figure;
+<span class="keyword">for</span> i=1:6
+subplot(2,3,i)
+mypatch(x1, ix, <span class="string">'interp'</span>, <span class="string">'none'</span>, eps(:, i), 1,1,cel{i},<span class="string">'x axis'</span>,<span class="string">'y axis'</span>,<span class="string">'z axis'</span>,-0.2,0.2);
+<span class="keyword">end</span>
+suptitle(<span class="string">'Strain'</span>);
+
+figure;
+<span class="keyword">for</span> i=1:6
+subplot(2,3,i)
+mypatch(x1, ix, <span class="string">'interp'</span>, <span class="string">'none'</span>, sig(:, i), 1,1,cel{i},<span class="string">'x axis'</span>,<span class="string">'y axis'</span>,<span class="string">'z axis'</span>,-3*10^5,20*10^5);
+<span class="keyword">end</span>
+suptitle(<span class="string">'Stress'</span>);
+
+
+disp(<span class="string">'done'</span>);
+</pre><pre class="codeoutput">done
+</pre><img vspace="5" hspace="5" src="test_recovery_01.png" alt=""> <img vspace="5" hspace="5" src="test_recovery_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+close all; 
+clear ; 
+clc; 
+
+%% mesh grid
+% load('comsol 5w fix.mat')
+Lx = 1; 
+Ly = 1; 
+Lz = 3.5; 
+
+Nx = 16; 
+Ny = 16; 
+Nz = 44; 
+
+mesher = MyRegular_Mesher; 
+mesher.create(5, [Lx, Ly, Lz], [Nx, Ny, Nz], [-Lx/2 -Ly/2 0]); 
+x   = mesher.x; 
+nx  = mesher.nx; 
+ix  = mesher.ix; 
+nix = mesher.nix; 
+nnde = 4; 
+
+% figure; 
+% plot_mesh(3, x, ix, nnde * ones(nix, 1), 'none', 'k', 1); 
+% axis equal
+% xlabel('x'); 
+% ylabel('y'); 
+% zlabel('z'); 
+% view(19, 23);
+
+nx = size(x, 1); 
+nix = size(ix, 1);
+
+%% material and model properties
+nnde  = 4; 
+D     = 3; 
+nintx = 2;    % int. order for K, M 
+nints = 3;    % int. order for recovery matarices (Mr, Reps, Rsig)
+E     = 6000000; 
+nu    = 0.33; 
+%　density
+rho = 10;
+% Geometric parameters
+% length in x,y,z
+Lz  = max(x(:,3)) - min(x(:,3));
+Ly  = max(x(:,2)) - min(x(:,2));
+Lx  = max(x(:,1)) - min(x(:,1));
+% physical force
+% gravity
+g   = 9.8;
+
+%% shape function structures
+SFx = GenerateShapeFunction(D,nnde,nintx); 
+SFs1 = GenerateShapeFunction(D,nnde,nints); 
+SFs2 = GenerateShapeFunction(D,nnde,1);
+% elastic tensor 
+CC = ElastTensor(E, nu);
+Dc = size(CC, 1); 
+
+%% integrate K, M
+ tic;
+[K, M] = IntKM(x, ix, SFx, CC);
+ disp(['integration of K, M finished for :', num2str(toc), 'sec']);
+
+%% integrate Mr, Reps, Rsig
+ tic;
+[Mr, Reps, Rsig] = intRecoverMat(x, ix, SFs1, SFs2, CC);
+disp(['integration of Mr, Reps, Rsig finished for :', num2str(toc), 'sec']);
+
+%% Boundary conditions
+topID   = find(abs(x(:, 3) - Lz) < 1e-5); 
+
+% constrain
+pu2    = [topID * D - 2, topID * D - 1,topID * D]'; 
+pu2    = pu2(:); 
+u      = zeros(nx * D, 1); 
+u(pu2)       = 0;
+
+% external forces
+puf  = topID * D; 
+fext = zeros(nx, D); 
+fext(:,3) = -rho* g* x(:,3);
+fext = fext';
+fext = fext(:);
+
+%% solve for displacement
+[u, fext] = solveLin(K, u, fext, pu2);
+
+%% recover stress and strain
+sigVec = Mr \ (Rsig * u); 
+sig    = reshape(sigVec, Dc, nx)';
+epsVec = Mr \ (Reps * u); 
+eps    = reshape(epsVec, Dc, nx)'; 
+
+%% deformed configuration; 
+u0 = reshape(u, D, nx)';
+x1 = x + u0; 
+
+% figure; 
+% % h1=patch('vertices', x, 'faces', ix, ...
+% % 'facecolor', 'none', 'edgecolor', 'r');
+% % set(h1, 'linewidth', 0.5);
+% % hold on 
+% axis equal
+% mypatch(x1, ix, 'interp', 'none', u0(:,3), 0.8, 1, 't','x','y','z'); 
+% colorbar; 
+% axis equal
+% title('u_z'); 
+
+cel={'xx','yy','zz','xy','xz','yz'};
+
+figure;
+for i=1:6
+subplot(2,3,i)
+mypatch(x1, ix, 'interp', 'none', eps(:, i), 1,1,cel{i},'x axis','y axis','z axis',-0.2,0.2);
+end
+suptitle('Strain');
+
+figure;
+for i=1:6
+subplot(2,3,i)
+mypatch(x1, ix, 'interp', 'none', sig(:, i), 1,1,cel{i},'x axis','y axis','z axis',-3*10^5,20*10^5);
+end
+suptitle('Stress');
+
+
+disp('done');
+
+##### SOURCE END #####
+--></body></html>

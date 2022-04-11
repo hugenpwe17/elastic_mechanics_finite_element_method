@@ -1,0 +1,273 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>test_IntKM</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-11"><meta name="DC.source" content="test_IntKM.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">FEM solution</a></li><li><a href="#2">load mesh model</a></li><li><a href="#3">define parameters</a></li><li><a href="#4">get generation parameters</a></li><li><a href="#5">assemble K M</a></li><li><a href="#6">Boundary condition</a></li></ul></div><h2 id="1">FEM solution</h2><p>Contributed by OuYang,Xiong</p><pre class="codeinput">close <span class="string">all</span>;
+clear;
+clc;
+</pre><h2 id="2">load mesh model</h2><p>x  : coordinates (3* total nnde) ix : node number matrix (nnde in cell* cell number)</p><pre class="codeinput"><span class="comment">% load('comsol 5w fix.mat')</span>
+Lx = 1;
+Ly = 1;
+Lz = 5;
+
+Nx = 16;
+Ny = 16;
+Nz = 44;
+
+mesher = MyRegular_Mesher;
+mesher.create(5, [Lx, Ly, Lz], [Nx, Ny, Nz], [0 0 0]);
+x   = mesher.x;
+nx  = mesher.nx;
+ix  = mesher.ix;
+nix = mesher.nix;
+nnde = 4;
+
+<span class="comment">% figure;</span>
+<span class="comment">% plot_mesh(3, x, ix, nnde * ones(nix, 1), 'none', 'k', 1);</span>
+<span class="comment">% axis equal</span>
+<span class="comment">% xlabel('x');</span>
+<span class="comment">% ylabel('y');</span>
+<span class="comment">% zlabel('z');</span>
+<span class="comment">% view(19, 23);</span>
+
+<span class="comment">% area matrix</span>
+<span class="keyword">for</span> i = 1 : length(ix)
+[fx(((4*i-3):(4*i)),:),~] = VerToFace(x(ix(i,:),:),ix(i,:));
+<span class="keyword">end</span>
+</pre><h2 id="3">define parameters</h2><p>material parameters young modulus</p><pre class="codeinput">E   = 6000000;
+<span class="comment">% poisson's ratio</span>
+nu  = 0.33;
+<span class="comment">%&#12288;density</span>
+rho = 10;
+<span class="comment">% Geometric parameters</span>
+<span class="comment">% length in x,y,z</span>
+Lz  = max(x(:,3)) - min(x(:,3));
+Ly  = max(x(:,2)) - min(x(:,2));
+Lx  = max(x(:,1)) - min(x(:,1));
+<span class="comment">% physical force</span>
+<span class="comment">% gravity</span>
+g   = 9.8;
+<span class="comment">% model parameters</span>
+<span class="comment">% dimensionality</span>
+D    = 3;
+<span class="comment">% number of nodes</span>
+nnde = 4;
+<span class="comment">% order of numerical integration</span>
+nint = 3;
+<span class="comment">% all degrees of freedom</span>
+nf   = D* nnde;
+<span class="comment">% model parameter</span>
+nx = size(x, 1);
+nix = size(ix, 1);
+<span class="comment">% figure</span>
+<span class="comment">% h1 = mypatch(x, fx, 'r', 'k', [], 0.5, 1 ,'title','x','y','z');</span>
+<span class="comment">% set(h1, 'linewidth', 0.5);</span>
+</pre><h2 id="4">get generation parameters</h2><pre class="codeinput">SF = GenerateShapeFunction(D,nnde,nint);
+<span class="comment">% calculate elast tensor</span>
+CC = ElastTensor(E,nu);
+</pre><h2 id="5">assemble K M</h2><pre class="codeinput">tic;
+[K, M] = IntKM(x, ix, SF, CC);
+toc;
+</pre><pre class="codeoutput">&#21382;&#26102; 15.240607 &#31186;&#12290;
+</pre><h2 id="6">Boundary condition</h2><p>constrain;</p><pre class="codeinput">topID   = find(abs(x(:,3) - Lz) &lt; 1e-5);
+lowerID   = find(abs(x(:,3) - 0) &lt; 1e-5);
+ figure
+<span class="comment">% h1 = mypatch(x, fx, 'none', 'k', [], 0.5, 1 ,'title','x','y','z');</span>
+<span class="comment">% hold on;</span>
+<span class="comment">% plot3(x(topID, 1), x(topID, 2), x(topID, 3), 'ob', 'markerfacecolor', 'r');</span>
+<span class="comment">% plot3(x(lowerID, 1), x(lowerID, 2), x(lowerID, 3), 'ob', 'markerfacecolor', 'r');</span>
+<span class="comment">%</span>
+pu2 = [topID * D - 2,topID * D - 1,topID * D]';
+pu2 = pu2(:);
+<span class="comment">% disp. fext</span>
+u   = zeros(nx * D, 1);
+u(pu2) = 0;
+<span class="comment">%</span>
+fext = zeros(nx, D);
+fext(:,3) = -rho* g* x(:,3);
+fext = fext';
+fext = fext(:);
+<span class="comment">% solve</span>
+[u, fext] = solveLin(K, u, fext, pu2);
+<span class="comment">%</span>
+u0 = reshape(u, D, nx)';
+x1 = x + u0;
+<span class="comment">%</span>
+mypatch(x1, fx, <span class="string">'interp'</span>, <span class="string">'none'</span>, u0(:,3), 0.5, 1,<span class="string">'Displacement'</span>,<span class="string">'x axis'</span>,<span class="string">'y axis'</span>,<span class="string">'z axis'</span>);
+</pre><img vspace="5" hspace="5" src="test_IntKM_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% FEM solution
+% Contributed by OuYang,Xiong
+close all;
+clear;
+clc;
+%% load mesh model 
+% x  : coordinates (3* total nnde)
+% ix : node number matrix (nnde in cell* cell number) 
+
+% load('comsol 5w fix.mat')
+Lx = 1; 
+Ly = 1; 
+Lz = 5; 
+
+Nx = 16; 
+Ny = 16; 
+Nz = 44; 
+
+mesher = MyRegular_Mesher; 
+mesher.create(5, [Lx, Ly, Lz], [Nx, Ny, Nz], [0 0 0]); 
+x   = mesher.x; 
+nx  = mesher.nx; 
+ix  = mesher.ix; 
+nix = mesher.nix; 
+nnde = 4; 
+
+% figure; 
+% plot_mesh(3, x, ix, nnde * ones(nix, 1), 'none', 'k', 1); 
+% axis equal
+% xlabel('x'); 
+% ylabel('y'); 
+% zlabel('z'); 
+% view(19, 23);
+
+% area matrix
+for i = 1 : length(ix)
+[fx(((4*i-3):(4*i)),:),~] = VerToFace(x(ix(i,:),:),ix(i,:));
+end
+
+%% define parameters
+% material parameters
+% young modulus
+E   = 6000000;
+% poisson's ratio
+nu  = 0.33;
+%　density
+rho = 10;
+% Geometric parameters
+% length in x,y,z
+Lz  = max(x(:,3)) - min(x(:,3));
+Ly  = max(x(:,2)) - min(x(:,2));
+Lx  = max(x(:,1)) - min(x(:,1));
+% physical force
+% gravity
+g   = 9.8;
+% model parameters
+% dimensionality
+D    = 3; 
+% number of nodes
+nnde = 4; 
+% order of numerical integration
+nint = 3;
+% all degrees of freedom
+nf   = D* nnde;
+% model parameter
+nx = size(x, 1); 
+nix = size(ix, 1);
+% figure
+% h1 = mypatch(x, fx, 'r', 'k', [], 0.5, 1 ,'title','x','y','z'); 
+% set(h1, 'linewidth', 0.5);
+
+%% get generation parameters
+SF = GenerateShapeFunction(D,nnde,nint);
+% calculate elast tensor
+CC = ElastTensor(E,nu);
+
+%% assemble K M
+tic;
+[K, M] = IntKM(x, ix, SF, CC);
+toc;
+
+%% Boundary condition
+% constrain;
+topID   = find(abs(x(:,3) - Lz) < 1e-5); 
+lowerID   = find(abs(x(:,3) - 0) < 1e-5); 
+ figure
+% h1 = mypatch(x, fx, 'none', 'k', [], 0.5, 1 ,'title','x','y','z'); 
+% hold on; 
+% plot3(x(topID, 1), x(topID, 2), x(topID, 3), 'ob', 'markerfacecolor', 'r'); 
+% plot3(x(lowerID, 1), x(lowerID, 2), x(lowerID, 3), 'ob', 'markerfacecolor', 'r'); 
+% 
+pu2 = [topID * D - 2,topID * D - 1,topID * D]'; 
+pu2 = pu2(:); 
+% disp. fext
+u   = zeros(nx * D, 1); 
+u(pu2) = 0;
+% 
+fext = zeros(nx, D); 
+fext(:,3) = -rho* g* x(:,3);
+fext = fext';
+fext = fext(:);
+% solve
+[u, fext] = solveLin(K, u, fext, pu2);
+% 
+u0 = reshape(u, D, nx)';
+x1 = x + u0; 
+%
+mypatch(x1, fx, 'interp', 'none', u0(:,3), 0.5, 1,'Displacement','x axis','y axis','z axis');
+##### SOURCE END #####
+--></body></html>
