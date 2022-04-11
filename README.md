@@ -1,1 +1,1 @@
-# elastic_mechanics_finite_element_method
+# finite_element_method_EM 
