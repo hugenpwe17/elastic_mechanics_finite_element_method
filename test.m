@@ -72,7 +72,7 @@ scatter3(Xi(:,1),Xi(:,2),Xi(:,3),20,N(:, i),'filled')
 view(31,38);
 colorbar()
 end
-set(figure(1),'Position',[0,0,800,600]);
+% set(figure(1),'Position',[0,0,800,600]);
 
 
 %% Draw the tetrahedron and Gauss point in real space
